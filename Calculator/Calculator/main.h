@@ -19,7 +19,7 @@
 #include "ADC.h"
 
 
-
-
+void Cal_Result(uint8_t cal);
+/*uint8_t Change_Number(uint8_t  num);*/
 
 #endif /* MAIN_H_ */

@@ -7,17 +7,19 @@
 
 #include "button.h"
 
-static uint8_t Mode_Button_Number = 0;
+static uint8_t Mode_Button_Num = 0;
+static uint8_t Start_Stop_Button_Number = 0;
+
 void Button_Init()
 {
-	BUTTON_MODE_DDR &= ~(1<<MODE_BUTTON); // 모드 변경 버튼 입력 설정
-	BUTTON_START_STOP_DDR &= ~(1<<START_STOP_BUTTON); // 스탑워치 START/STOP
-	BUTTON_RESET_DDR &= ~(1<<RESET_BUTTON); // 스탑워치 RESET
-	BUTTON_UP_DDR &= ~(1<<UP_BUTTON); // 알람 설정 숫자 UP
-	BUTTON_DOWN_DDR &= ~(1<<DOWN_BUTTON); // 알람 설정 숫자 DOWN
+	BUTTON_MODE_DDR &= ~(1<<MODE_BUTTON); // AUTO 모드
+	BUTTON_STATE_DDR &= ~(1<<STATE_BUTTON); // Manual 모드
+	BUTTON_START_STOP_DDR &= ~(1<<START_STOP_BUTTON); // START/STOP
+	BUTTON_MANUAL_TIMEUP_DDR &= ~(1<<MANUAL_TIMEUP_BUTTON); // 알람 설정 숫자 UP
+	/*BUTTON_DOWN_DDR &= ~(1<<DOWN_BUTTON); // 알람 설정 숫자 DOWN*/
 }
 
-uint8_t Get_ClockMode_ButtonState()
+uint8_t Get_Mode_ButtonState()
 {
 	static uint8_t prevModeButtonState = 1; // 
 	
@@ -25,33 +27,34 @@ uint8_t Get_ClockMode_ButtonState()
 	
 }
 
-uint8_t Get_Start_Stop_ButtonState() // 스탑워치 START/STOP
+uint8_t Get_State_ButtonState() // Manual 모드 
 {
 	static uint8_t prevStartStopButtonState = 1; 
 	
-	return Get_ButtonState(START_STOP_BUTTON, &prevStartStopButtonState); 
+	return Get_ButtonState(STATE_BUTTON, &prevStartStopButtonState); 
 }
 
-uint8_t Get_Reset_ButtonState() // 스탑워치 RESET
+uint8_t Get_Manual_Timeup_ButtonState() // 스탑워치 RESET
 {
 	static uint8_t prevResetButtonState = 1; 
 	
-	return Get_ButtonState(RESET_BUTTON, &prevResetButtonState); 
+	return Get_ButtonState(MANUAL_TIMEUP_BUTTON, &prevResetButtonState); 
 }
 
-uint8_t Get_UP_ButtonState() // 알람 설정 숫자 UP
+uint8_t Get_Start_Stop_ButtonState() // 알람 설정 숫자 UP
 {
 	static uint8_t prevUPButtonState = 1; 
 	
-	return Get_ButtonState(UP_BUTTON, &prevUPButtonState); 
+	return Get_ButtonState(START_STOP_BUTTON, &prevUPButtonState); 
 }
 
+/*
 uint8_t Get_Down_ButtonState() // 알람 설정 숫자 DOWN
 {
 	static uint8_t prevDownButtonState = 1; 
 	
 	return Get_ButtonState(DOWN_BUTTON, &prevDownButtonState); 
-}
+}*/
 
 uint8_t Get_ButtonState(uint8_t button, uint8_t *prevButtonState) // 범용버튼 번호, 범용버튼 상태 
 {
@@ -64,7 +67,7 @@ uint8_t Get_ButtonState(uint8_t button, uint8_t *prevButtonState) // 범용버�
 	{
 		*prevButtonState = curButtonState; 
 		prevTime = Get_Millis();// millisCount;
-		return 0;
+		return 1;
 	}
 	else if ( (curButtonState == 1) && (*prevButtonState == 0) ) // 버튼을 때고있을때
 	{
@@ -72,7 +75,7 @@ uint8_t Get_ButtonState(uint8_t button, uint8_t *prevButtonState) // 범용버�
 		if (curTime - prevTime > DEBOUNCE) // 20ms가 경과하면
 		{
 			*prevButtonState = curButtonState; 
-			return 1; // 버튼이 떨어질때 동작
+			return 0; // 버튼이 떨어질때 동작
 		}
 		return 0;
 	}
@@ -80,27 +83,40 @@ uint8_t Get_ButtonState(uint8_t button, uint8_t *prevButtonState) // 범용버�
 	return 0;
 }
 
-void Mode_Button_Action() // 모드 변경, 분/초 변경 버튼 동작
+
+void Mode_Change()
 {
-	if (Get_ClockMode_ButtonState()) // 버튼 입력
+	if (Get_Mode_ButtonState())
 	{
-		Mode_Button_Number ++; 
+		Mode_Button_Num++;
+		LCD_Clear();
 	}
 	
-	if (Mode_Button_Number == 1) // 버튼이 첫번째로  눌리면
+	if (Get_Start_Stop_ButtonState())
 	{
-		Set_Mode(Alarm); // 모드를 알람으로 바꿈
-		Set_Alarm_State(Minute); // 알람 설정(분)
+		Start_Stop_Button_Number++;
+		LCD_Clear();
 	}
-	if (Mode_Button_Number == 2) // 버튼이 두번째 눌리면
+	if (Mode_Button_Num == 1)
 	{
-		Set_Alarm_State(Second); // 알람 설정(초)
+		Set_Machine_Mode(Manual);
 	}
-	if (Mode_Button_Number == 3) // 버튼이 세번째 눌리면
+	else if (Mode_Button_Num == 2)
 	{
-		Set_Mode(StopWatch); // 스탑워치 모드로 변경
-		Set_StopWatch_State(Reset); // 스탑워치 상태(리셋)변경
-		Mode_Button_Number = 0; // 버튼 입력 초기화
+		Set_Machine_Mode(Auto);
+		Mode_Button_Num = 0;
 	}
-
+	
+	if (Start_Stop_Button_Number == 1)
+	{
+		Set_Machine_Mode(Start);
+		Mode_Button_Num = 0;
+	}
+	else if (Start_Stop_Button_Number == 2)
+	{
+		Set_Machine_Mode(Stop);
+		Start_Stop_Button_Number = 0;
+	}
+	
 }
+

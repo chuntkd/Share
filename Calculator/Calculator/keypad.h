@@ -21,13 +21,15 @@
 void KeyPadinit();
 
 uint8_t Get_ButtonState(uint8_t row, uint8_t col);
-/*uint8_t Get_Cal_ButtonState(uint8_t row, uint8_t col);
+
+uint8_t Get_Cal_ButtonState(uint8_t row, uint8_t col);
 uint8_t Get_Reset_ButtonState(uint8_t row, uint8_t col);
 
 uint8_t Keypad_Cal_Scan();
-uint8_t Keypad_Reset_Scan();*/
+
+uint8_t Keypad_Reset_Scan();
 uint8_t Keypad_Scan();
-uint8_t Change_Number(uint8_t * num);
+uint8_t Change_Number(uint8_t  num);
 
 
 

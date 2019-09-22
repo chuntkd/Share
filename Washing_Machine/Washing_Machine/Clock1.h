@@ -17,37 +17,18 @@
 #include "CLCD.h"
 #include "Buzzer.h"
 
-enum{StopWatch,Alarm} Clock_Mode;
-enum{Reset,Stop,Start} Stop_Watch_State;
-enum{Minute,Second} Alarm_Set_State;
-	
+
+
+enum{Ready,W,R,D,End} Laundry_Mode;
+
 
 
 
 uint16_t Time();
 
-uint8_t Get_StopWatch_State();
-void Set_StopWatch_State(uint8_t StopWatchState);
-uint8_t Get_Mode();
-void Set_Mode(uint8_t ClockMode);
+void Set_Laundry_Mode_State(uint8_t LaundryMode);
 
-void Set_Alarm_State(uint8_t AlarmState);
-uint8_t Get_Alarm_State();
+uint8_t Get_Laundry_Mode_State();
 
-void Set_Alarm_Minute(uint8_t Alarm_Minute);
-uint8_t Get_Alarm_Set_Minute();
-void Set_Alarm_Second(uint8_t Alarm_Second);
-uint8_t Get_Alarm_Set_Second();
-
-void StopWatch_Display();
-void Alarm_Display();
-
-void DisplayStopWatch(uint8_t StopwatchState);
-void DisplayAlram(uint8_t StopwatchState);
-
-
-void Clock_Action();
-void LCD_Clock();
-void Alarm_Buzzer();
-
+void Display_Auto_LaundryTime(uint8_t state);
 #endif /* CLOCK_H_ */
